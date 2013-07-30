@@ -1,94 +1,25 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<title>Roam - Travel app</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 	</head>
 	<link rel="stylesheet" href="external/leaflet-0.6.4/leaflet.css" />
+	<link rel="stylesheet" href="external/bootstrap/css/bootstrap.min.css" />
 	<link rel="stylesheet" href="css/style.css" />
 	<body>
 		<div id="search">
 			<input type="text" placeholder="Bangalore" id="searchText"></input>
 			<button onclick="search()">Go</button>
 		</div>
+		<div id="itinery" class="">
+			
+		</div>
 		<div id="map"></div>
 	</body>
 	<script src="external/leaflet-0.6.4/leaflet.js"></script>
 	<script src="external/jquery/js/jquery-2.0.2.min.js"></script>
+	<script src="external/bootstrap/js/bootstrap.min.js"></script>
 	<script src="js/util.js"></script>
-	<script>
-		var map = L.map('map');
-
-		L.tileLayer('http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/997/256/{z}/{x}/{y}.png', {
-			maxZoom: 18,
-			attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery Â© <a href="http://cloudmade.com">CloudMade</a>'
-		}).addTo(map);
-		
-		var marker = L.marker([51.5, -0.09]).addTo(map);
-		marker.bindPopup("<b>Hello world!</b><br>I am a popup.").openPopup();
-		
-		var polygon = L.polygon([
-    								[51.509, -0.08],
-    								[51.503, -0.06],
-    								[51.51, -0.047]
-								]).addTo(map);
-		polygon.bindPopup("<b>Hello world!</b><br>I am a popup.").openPopup();
-								
-		var popup = L.popup()
-    					.setLatLng([51.5, -0.09])
-    					.setContent("I am a standalone popup.")
-    					.openOn(map);
-
-		function onLocationFound(e) {
-			var radius = e.accuracy / 2;
-
-			L.marker(e.latlng).addTo(map)
-				.bindPopup("You are within " + radius + " meters from this point").openPopup();
-
-			L.circle(e.latlng, radius).addTo(map);
-		}
-
-		function onLocationError(e) {
-			alert(e.message);
-		}
-
-		map.on('locationfound', onLocationFound);
-		map.on('locationerror', onLocationError);
-
-		map.locate({setView: true, maxZoom: 16});
-		
-		function search() {
-			var searchText = $("#searchText")[0].value;
-			$.ajax({
-				type : "get",
-				url : "/getVenues",
-				data : "searchText=" + searchText + "&cat=food",
-				success : function(response) {
-					response = Util.stringToJSON(response);
-					
-					function processResponse(res) {
-						var groups = res.response.groups;
-						var items, location, marker;
-						for (var gIdx = 0, gLen = groups.length; gIdx < gLen; gIdx++) {
-							items = groups[gIdx].items;
-							for (var idx = 0, len = items.length; idx < len; idx++) {
-								location = items[idx].location;
-								if (idx == 0) {
-									map.setView([location.lat, location.lng], 20);
-								}
-								marker = L.marker([location.lat, location.lng]).addTo(map);
-								marker.bindPopup(items[idx].name).openPopup();
-							}
-						}
-					}
-					
-					processResponse(response);					
-				},
-				failure : function(response) {
-					alert("failure");
-				}
-			});
-		}
-				
-	</script>
-	
+	<script src="js/application.js"></script>	
 </html>
