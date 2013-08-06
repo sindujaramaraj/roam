@@ -8,14 +8,34 @@
 	<link rel="stylesheet" href="external/bootstrap/css/bootstrap.min.css" />
 	<link rel="stylesheet" href="css/style.css" />
 	<body>
-		<div id="search">
-			<input type="text" placeholder="Bangalore" id="searchText"></input>
-			<button onclick="search()">Go</button>
+		<div class="left">
+			<div id="itinery"></div>		
 		</div>
-		<div id="itinery" class="">
-			
+		<div class="right">
+			<div id="search">
+				<div class="col-lg-2">
+					<div class="input-group">
+						<input type="text" class="form-control" placeholder="Bangalore" id="searchText"></input>
+						<span class="input-group-btn">
+        					<button class="btn btn-default" type="button" onclick="search()">Go</button>
+      					</span>
+					</div>					
+				</div>
+				<ul class="nav nav-pills">
+  					<li><a href="#" onclick="searchByType('food')">Food</a></li>
+  					<li><a href="#" onclick="searchByType('drinks')">Drinks</a></li>
+  					<li><a href="#" onclick="searchByType('coffee')">Coffee</a></li>
+  					<li><a href="#" onclick="searchByType('shops')">Shops</a></li>
+  					<li><a href="#" onclick="searchByType('arts')">Arts</a></li>
+  					<li><a href="#" onclick="searchByType('outdoors')">Outdoors</a></li>
+  					<li><a href="#" onclick="searchByType('sights')">Sights</a></li>
+  					<li><a href="#" onclick="searchByType('trending')">Trending</a></li>
+  					<li><a href="#" onclick="searchByType('specials')">Specials</a></li>
+				</ul>
+			</div>		
+			<div id="map"></div>
 		</div>
-		<div id="map"></div>
+		
 	</body>
 	<script src="external/leaflet-0.6.4/leaflet.js"></script>
 	<script src="external/jquery/js/jquery-2.0.2.min.js"></script>

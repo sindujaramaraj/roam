@@ -4,7 +4,12 @@ $(document).ready(function() {
 });
 
 function search() {
-	Application.search();
+	Application.search(0);
+}
+
+function searchByType(type) {
+	Application.clearMap();
+	Application.search(0, type);
 }
 
 var Application = (function() {
@@ -12,6 +17,8 @@ var Application = (function() {
 	var map;
 	var itinery = [];
 	var locationItems = {};
+	var limit = 30;
+	var layers = [];
 	
 	//html
 	var itineryElem = $("#itinery");
@@ -45,35 +52,42 @@ var Application = (function() {
 			map.locate({setView: true, maxZoom: 16});
 			path = new L.Polyline([], {color : "red"}).addTo(map);
 		},
-		search : function() {
+		search : function(offset, type) {
 			var searchText = $("#searchText")[0].value;
+			var paramJson = {near: searchText, offset : offset, limit : limit};
+			type && (paramJson.section = type);
 			$.ajax({
 				type : "get",
-				url : "/getVenues",
-				data : "searchText=" + searchText + "&cat=food",
+				url : "/getVenues" + L.Util.getParamString(paramJson),
 				success : function(response) {
 					response = Util.stringToJSON(response);
 					
 					function processResponse(res) {
 						var groups = res.response.groups;
-						var items, location, marker;
+						var items, location, marker, venue;
+						var markerArr = [];
 						for (var gIdx = 0, gLen = groups.length; gIdx < gLen; gIdx++) {
 							items = groups[gIdx].items;
 							for (var idx = 0, len = items.length; idx < len; idx++) {
-								location = items[idx].location;
+								venue = items[idx].venue;
 								if (idx == 0) {
-									map.setView([location.lat, location.lng], 20);
+									map.setView([venue.location.lat, venue.location.lng], 100);
 								}
-								marker = L.marker([location.lat, location.lng]).addTo(map);
-								locationItems[items[idx].id] = {
-										latlng : new L.LatLng(location.lat, location.lng),
-										name : items[idx].name
+								marker = L.marker([venue.location.lat, venue.location.lng]);
+								locationItems[venue.id] = {
+										latlng : new L.LatLng(venue.location.lat, venue.location.lng),
+										name : venue.name
 								};
-								marker.bindPopup("<b>" + items[idx].name + "</b>" 
+								marker.bindPopup("<b>" + venue.name + "</b>" 
 										+ "<div><div class='btn-group'>"
-										+ "<button id='" + items[idx].id + "'onclick='Application.addToPlan(event)' class='btn btn-primary btn-small'>Add to my plan</button>"
+										+ "<button id='" + venue.id + "'onclick='Application.addToPlan(event)' class='btn btn-primary btn-small'>Add to my plan</button>"
 										+ "</div></div>").openPopup();
+								markerArr.push(marker);
 							}
+						}
+						layers.push(L.layerGroup(markerArr).addTo(map));
+						if (offset*limit < res.response.totalResults) {
+							Application.search(++offset, type);
 						}
 					}
 					
@@ -93,16 +107,27 @@ var Application = (function() {
 			//find distance with previous location in itinery			
 			if (itinery.length > 0) {
 				var distance = itinery[itinery.length - 1].latlng.distanceTo(locationItem.latlng);
-				itineryElem.append("<div class='distance'>" + distance + "</div>");
+				itineryElem.append("<div class='distance'><span class='text-muted'>" + distance + "</span></div>");
 			}
 			//add location item to itinery
-			itineryElem.append("<div class='itinery-item'>" + locationItem.name + "</div>");
+			itineryElem.append("<div class='itinery-item'><span class='text-info'>" + locationItem.name + "</span></div>");
 			itinery.push(locationItem);
 			path.addLatLng(locationItem.latlng);
+			path.bringToFront();
 			map.fitBounds(path.getBounds());			
 		},
 		findDistance : function(fromLatLng, toLatLng) {
 			
+		},
+		clearMap : function() {
+			for (var idx = 0, len = layers.length; idx < len; idx++) {
+				layers[idx].clearLayers();
+			}
+			map.removeLayer(path);
+			layers = [];
+			itinery = [];
+			locationItems = {};
+			path = new L.Polyline([], {color : "red"}).addTo(map);
 		}
 	};
 })();

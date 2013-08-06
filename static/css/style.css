@@ -3,14 +3,33 @@ body {
     margin: 0;
 }
 
-html, body {
+html, body, .left, .right {
     height: 100%;
 }
 
+.ib {
+	display : inline-block;
+}
+
+.left {
+	width: 250px;
+	float: left;
+}
+.right {
+	width: auto:
+	margin-left: 250px;
+}
+
 #search {
-	height: 40px;
+	height: 100px;
 	padding: 5px;
 }
+
 #map {
 	height : 90%;
+}
+
+#itinery {
+	padding : 5px;
 } 
+

@@ -19,9 +19,16 @@ var fsApiConnector = require("./fsApiConnector.js");
 
 app.get('/getVenues', function(req, res) {
 	fsApiConnector.getVenues({
-		near : req.query.searchText,
-		cat : req.query.cat
+		near : req.query.near,
+		query : req.query.query,
+		offset : req.query.offset,
+		limit : req.query.limit,
+		section : req.query.section
 	}, getCallback(res));	
+});
+
+app.get('/getCategories', function(req, res) {
+	fsApiConnector.getCategories({}, getCallback(res));
 });
 
 function getCallback(pRes) {
