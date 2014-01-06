@@ -1,5 +1,6 @@
 //some init stuffs on page load
 $(document).ready(function() {
+	$('#planning').hide();
 	Application.init();
 });
 
@@ -15,6 +16,7 @@ function searchByType(type) {
 var Application = (function() {
 	//leaflet map object
 	var map;
+	var mapLoaded = false;
 	var itinery = [];
 	var locationItems = {};
 	var limit = 30;
@@ -26,35 +28,59 @@ var Application = (function() {
 	
 	return  {
 		init : function() {
-			map = L.map('map');
-
-			L.tileLayer('http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/997/256/{z}/{x}/{y}.png', {
-				maxZoom: 18,
-				attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery Â© <a href="http://cloudmade.com">CloudMade</a>'
-			}).addTo(map);
-			
-			function onLocationFound(e) {
-				var radius = e.accuracy / 2;
-
-				L.marker(e.latlng).addTo(map)
-					.bindPopup("You are within " + radius + " meters from this point").openPopup();
-
-				L.circle(e.latlng, radius).addTo(map);
-			}
-
-			function onLocationError(e) {
-				alert(e.message);
-			}
-
-			map.on('locationfound', onLocationFound);
-			map.on('locationerror', onLocationError);
-
-			map.locate({setView: true, maxZoom: 16});
-			path = new L.Polyline([], {color : "red"}).addTo(map);
+			var autocomplete = new google.maps.places.Autocomplete($('#searchPlace')[0]);
+			google.maps.event.addListener(autocomplete, 'place_changed', function() {
+				var place = autocomplete.getPlace();
+				if (!place.geometry) {
+					return;
+				}
+				$('#planning').show();
+				Application.loadMap();
+				Application.search(place.name);
+			});	
+			this.setHeight();
 		},
-		search : function(offset, type) {
-			var searchText = $("#searchText")[0].value;
-			var paramJson = {near: searchText, offset : offset, limit : limit};
+		setHeight: function() {
+			var totalHeight = $('body')[0].offsetHeight;
+			var searchForPlacesHeight = $('#searchForPlaces')[0].offsetHeight;
+			var planningHeight = (totalHeight - searchForPlacesHeight);
+			$('#planning')[0].style.height = planningHeight + 'px';
+			$('#map')[0].style.height = (planningHeight - $('#search')[0].offsetHeight) + 'px';
+		},
+		loadMap: function() {
+			if (!mapLoaded) {
+				map = L.map('map').setView([51.505, -0.09], 13);
+
+				L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+					maxZoom: 18,
+					attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+				}).addTo(map);
+				
+				function onLocationFound(e) {
+					var radius = e.accuracy / 2;
+
+					L.marker(e.latlng).addTo(map)
+						.bindPopup("You are within " + radius + " meters from this point").openPopup();
+
+					L.circle(e.latlng, radius).addTo(map);
+				}
+
+				function onLocationError(e) {
+					alert(e.message);
+				}
+
+				map.on('locationfound', onLocationFound);
+				map.on('locationerror', onLocationError);
+
+				map.locate({setView: true, maxZoom: 16});
+				path = new L.Polyline([], {color : "red"}).addTo(map);
+				mapLoaded = true;
+			} else {
+				this.clearMap();
+			}
+		},
+		search : function(place, offset, type) {
+			var paramJson = {near: place, offset : offset, limit : limit};
 			type && (paramJson.section = type);
 			$.ajax({
 				type : "get",

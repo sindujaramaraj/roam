@@ -1,45 +1,45 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Roam - Travel app</title>
+		<title>Just Roam - Its all about your itinery!</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 	</head>
 	<link rel="stylesheet" href="external/leaflet-0.6.4/leaflet.css" />
 	<link rel="stylesheet" href="external/bootstrap/css/bootstrap.min.css" />
 	<link rel="stylesheet" href="css/style.css" />
 	<body>
-		<div class="left">
-			<div id="itinery"></div>		
-		</div>
-		<div class="right">
-			<div id="search">
-				<div class="col-lg-2">
-					<div class="input-group">
-						<input type="text" class="form-control" placeholder="Bangalore" id="searchText"></input>
-						<span class="input-group-btn">
-        					<button class="btn btn-default" type="button" onclick="search()">Go</button>
-      					</span>
-					</div>					
+		<div class='container'>
+			<div id='searchForPlaces'>
+				<input id='searchPlace' type='text' class='form-control' placeholder='Enter a location'/>
+			</div>
+			<div id='planning'>
+				<div class="left ib">
+					<div id="itinery"></div>		
 				</div>
-				<ul class="nav nav-pills">
-  					<li><a href="#" onclick="searchByType('food')">Food</a></li>
-  					<li><a href="#" onclick="searchByType('drinks')">Drinks</a></li>
-  					<li><a href="#" onclick="searchByType('coffee')">Coffee</a></li>
-  					<li><a href="#" onclick="searchByType('shops')">Shops</a></li>
-  					<li><a href="#" onclick="searchByType('arts')">Arts</a></li>
-  					<li><a href="#" onclick="searchByType('outdoors')">Outdoors</a></li>
-  					<li><a href="#" onclick="searchByType('sights')">Sights</a></li>
-  					<li><a href="#" onclick="searchByType('trending')">Trending</a></li>
-  					<li><a href="#" onclick="searchByType('specials')">Specials</a></li>
-				</ul>
-			</div>		
-			<div id="map"></div>
+				<div class="right ib">
+					<div id="search">
+						<ul class="nav nav-pills">
+		  					<li><a href="#" onclick="searchByType('sights')">Sights</a></li>
+		  					<li><a href="#" onclick="searchByType('trending')">Trending</a></li>
+		  					<li><a href="#" onclick="searchByType('specials')">Specials</a></li>
+		  					<li><a href="#" onclick="searchByType('food')">Food</a></li>
+		  					<li><a href="#" onclick="searchByType('drinks')">Drinks</a></li>
+		  					<li><a href="#" onclick="searchByType('coffee')">Coffee</a></li>
+		  					<li><a href="#" onclick="searchByType('shops')">Shops</a></li>
+		  					<li><a href="#" onclick="searchByType('arts')">Arts</a></li>
+		  					<li><a href="#" onclick="searchByType('outdoors')">Outdoors</a></li>
+		  					
+						</ul>
+					</div>		
+					<div id="map"></div>
+				</div>
+			</div>
 		</div>
-		
 	</body>
 	<script src="external/leaflet-0.6.4/leaflet.js"></script>
 	<script src="external/jquery/js/jquery-2.0.2.min.js"></script>
 	<script src="external/bootstrap/js/bootstrap.min.js"></script>
+	<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=places"></script>
 	<script src="js/util.js"></script>
 	<script src="js/application.js"></script>	
 </html>
