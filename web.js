@@ -15,7 +15,9 @@ app.listen(port, function() {
 app.use(express.static(__dirname + '/static'));
 
 /* App */
-var fsApiConnector = require("./fsApiConnector.js");
+var fsApiConnector = require('./fsApiConnector.js');
+var googleApiConnector = require('./googleApiConnector.js');
+var freebaseApiConnector = require('./freebaseApiConnector.js');
 
 app.get('/getVenues', function(req, res) {
 	fsApiConnector.getVenues({
@@ -29,6 +31,18 @@ app.get('/getVenues', function(req, res) {
 
 app.get('/getCategories', function(req, res) {
 	fsApiConnector.getCategories({}, getCallback(res));
+});
+
+app.get('/getPlaceDetails', function(req, res) {
+	googleApiConnector.getPlaceDetails(req.query.reference, getCallback(res));
+});
+
+app.get('/getPlacesForCountry', function(req, res) {
+	freebaseApiConnector.getPlacesForCountry(req.query.country, res);
+});
+
+app.get('/getDescription', function(req, res) {
+	freebaseApiConnector.getDescription(req.query.id, getCallback(res));	
 });
 
 function getCallback(pRes) {
