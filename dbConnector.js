@@ -11,5 +11,8 @@ var DBConnector = {
 				console.log(result.rows);
 			});
 		});
+	},
+	checkTableExists: function(table) {
+		
 	}
 };

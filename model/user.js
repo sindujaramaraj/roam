@@ -1,24 +1,12 @@
-var Model = require('perstore/model').Model,
-	DefaultStore = require("perstore/stores").DefaultStore;
+var mongoose = require('mongoose'),
+	Schema = mongoose.Schema;
 
-var store = new DefaultStore({log: false});
-
-User = Model(store, {
-	properties: {
-		name: {
-			type: 'string',
-		},
-		email: {
-			type: 'string'
-		},
-		password: {
-			type: 'string'
-		}
-	},
-	links: [{
-		rel: 'itineraries',
-		href: '../Itinerary?user={id}'
-	}]
+var userSchema = new Schema({
+	username: String,
+    password: String,
+    email: String,
+    joined: {type: Date, default: Date.now}
 });
+var User = mongoose.model('User', userSchema);
 
-require('')
+module.exports = User;

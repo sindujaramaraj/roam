@@ -1,6 +1,7 @@
 var Model = require('perstore/model').Model,
 	pinturaConfig = require("pintura/pintura").config,
 	admins = require("perstore/util/settings").security.admins,
+	Notifying = require("perstore/store/notifying").Notifying,
 	Role = pinturaConfig.security.getAuthenticationFacet();
 
 pinturaConfig.getDataModel = function(request) {

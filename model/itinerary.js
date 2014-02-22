@@ -1,18 +1,12 @@
-var Model = require('perstore/model').Model,
-	DefaultStore = require("perstore/stores").DefaultStore;
+var mongoose = require('mongoose'),
+	Schema = mongoose.Schema;
 
-var store = new DefaultStore({log: false});
-
-Itinerary = Model(store, {
-	properties: {
-		owner: {
-			type: 'string'
-		},
-		destination: {
-			type: 'string'
-		},
-		content: {
-			type: 'json'
-		}
-	},
+var itinerarySchema = new Schema({
+	owner: String,
+	destination: String,
+	content: {},
+	created: {type: Date, default: Date.now}
 });
+
+var Itinerary = mongoose.model('Itinerary', itinerarySchema);
+module.exports = Itinerary;
