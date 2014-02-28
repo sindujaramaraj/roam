@@ -28,6 +28,7 @@ fs.readdirSync('./controller').forEach(function (file) {
   }
 });
 
+//create server
 http.createServer(app).listen(app.get('port'), function(){
 	console.log('Express server listening on port ' + app.get('port'));
 });
@@ -64,6 +65,10 @@ app.get('/getPlaceDetails', function(req, res) {
 
 app.get('/getPlacesForCountry', function(req, res) {
 	freebaseApiConnector.getPlacesForCountry(req.query.country, res);
+});
+
+app.get('/getPlacesForLocality', function(req, res) {
+	freebaseApiConnector.getPlacesForLocality(req.query.locality, res);
 });
 
 app.get('/getDescription', function(req, res) {

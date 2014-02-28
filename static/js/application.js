@@ -76,11 +76,12 @@ var Application = (function() {
 			var type = getPlaceType(place.types);
 			switch(type) {
 				case 'country':
+				case 'state':
 					//get details for the country from freebase
 					this.getPlacesForCountry(place.name);
 					break;
 				case 'locality':
-					
+					this.getPlacesForLocality(place.name);
 				default:
 					//TODO
 			}
@@ -95,6 +96,22 @@ var Application = (function() {
 				} else {
 					response = response[0];
 					var locations = response['/location/location/contains'];
+					for (var idx = 0, len = locations.length; idx < len; idx++) {
+						Application.createMarker(locations[idx]);
+					}
+				}
+			});
+		},
+		getPlacesForLocality: function(locality) {
+			$.getJSON('getPlacesForLocality?locality=' + locality, function(response) {
+				if (response.length > 1) {
+					alert("Found more than one matching locality..");
+				} else if (response.length == 0) {
+					//TODO enhance this alert
+					alert("No matching locality found!!");
+				} else {
+					response = response[0];
+					var locations = response['/travel/travel_destination/tourist_attractions'];
 					for (var idx = 0, len = locations.length; idx < len; idx++) {
 						Application.createMarker(locations[idx]);
 					}
@@ -134,44 +151,7 @@ var Application = (function() {
 				 map = new google.maps.Map(document.getElementById('map'), mapOptions);				
 			}
 		},
-		/**
-		 * Loads leaflet map
-		 * TODO temporarily removing this method in order to try google maps
-		 * @returns
-		 */
-		loadMap: function () {
-			if (!mapLoaded) {
-				map = L.map('map').setView([51.505, -0.09], 13);
-
-				L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-					maxZoom: 18,
-					attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-				}).addTo(map);
-				
-				function onLocationFound(e) {
-					var radius = e.accuracy / 2;
-
-					L.marker(e.latlng).addTo(map)
-						.bindPopup("You are within " + radius + " meters from this point").openPopup();
-
-					L.circle(e.latlng, radius).addTo(map);
-				}
-
-				function onLocationError(e) {
-					alert(e.message);
-				}
-
-				map.on('locationfound', onLocationFound);
-				map.on('locationerror', onLocationError);
-
-				map.locate({setView: true, maxZoom: 16});
-				path = new L.Polyline([], {color : "red"}).addTo(map);
-				mapLoaded = true;
-			} else {
-				this.clearMap();
-			}
-		},
-		search : function (place, offset, type) {
+				search : function (place, offset, type) {
 			var paramJson = {near: place, offset : offset, limit : limit};
 			type && (paramJson.section = type);
 			$.ajax({

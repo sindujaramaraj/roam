@@ -15,7 +15,6 @@ FreebaseAPIConnector.prototype = (function() {
 	return {
 		getPlacesForCountry: function(country, res) {
 			var query = [{
-				  "type": "/location/country",
 				  "name": country,
 				  "id": null,
 				  "mid": null,
@@ -39,6 +38,26 @@ FreebaseAPIConnector.prototype = (function() {
 		},
 		getDetailsForPlace: function(place, res) {
 			
+		},
+		getPlacesForLocality: function(locality, res) {
+			var query = [{
+				"mid": null,
+				"id": null,
+				"name": locality,
+				  "/travel/travel_destination/tourist_attractions": [{
+				    "name": null,
+				    "id": null,
+				    "mid": null,
+				    "count": null,
+				    "/location/location/geolocation": {
+				    	"latitude": null,
+					    "longitude": null
+				    }
+				  }]
+				}];
+			freebase.paginate(query, function(response) {
+				res.send(response);
+			});
 		},
 		getDescription: function(id, callback) {
 			var params = {
