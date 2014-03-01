@@ -1,5 +1,4 @@
 var ServerUtil = require('./serverUtil.js');
-var freebase = require('freebase');
 
 function FreebaseAPIConnector() {
 	
@@ -30,11 +29,11 @@ FreebaseAPIConnector.prototype = (function() {
 				    }
 				  }]
 				}];
-			freebase.paginate(query, function(response) {
+			/*freebase.paginate(query, function(response) {
 				res.send(response);
-			});
-			/*var params = ServerUtil.getURLParams({query: JSON.stringify(query)});
-			ServerUtil.makeHttpGet(FREEBASE_HOST_NAME, FREEBASE_MQL_PATH + params, callback);*/
+			});*/
+			var params = ServerUtil.getURLParams({query: JSON.stringify(query)});
+			ServerUtil.makeHttpGet(FREEBASE_HOST_NAME, FREEBASE_MQL_PATH + params, callback);
 		},
 		getDetailsForPlace: function(place, res) {
 			
@@ -55,9 +54,11 @@ FreebaseAPIConnector.prototype = (function() {
 				    }
 				  }]
 				}];
-			freebase.paginate(query, function(response) {
+			/*freebase.paginate(query, function(response) {
 				res.send(response);
-			});
+			});*/
+			var params = ServerUtil.getURLParams({query: JSON.stringify(query)});
+			ServerUtil.makeHttpGet(FREEBASE_HOST_NAME, FREEBASE_MQL_PATH + params, callback);
 		},
 		getDescription: function(id, callback) {
 			var params = {
