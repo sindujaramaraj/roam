@@ -64,11 +64,11 @@ app.get('/getPlaceDetails', function(req, res) {
 });
 
 app.get('/getPlacesForCountry', function(req, res) {
-	freebaseApiConnector.getPlacesForCountry(req.query.country, res);
+	freebaseApiConnector.getPlacesForCountry(req.query.country, getCallback(res));
 });
 
 app.get('/getPlacesForLocality', function(req, res) {
-	freebaseApiConnector.getPlacesForLocality(req.query.locality, res);
+	freebaseApiConnector.getPlacesForLocality(req.query.locality, getCallback(res));
 });
 
 app.get('/getDescription', function(req, res) {

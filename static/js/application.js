@@ -1,6 +1,12 @@
 //some init stuffs on page load
 $(document).ready(function() {
 	//$('#planning').hide();
+	$('#showMapViewLink').click(function() {
+		Application.showMapView();
+	});
+	$('#showTileViewLink').click(function() {
+		Application.showTileView();
+	});
 	Application.init();
 });
 
@@ -22,6 +28,8 @@ var Application = (function() {
 	var locationItems = {};
 	var limit = 30;
 	var layers = [];
+	var tiles = [];
+	var places = [];
 	
 	//html
 	var itineryElem = $("#itinery");
@@ -42,7 +50,11 @@ var Application = (function() {
 	
 	return  {
 		init : function() {
-			Application.loadGoogleMap();
+			//load map view or tile view by preference
+			//for now let it be map view
+			this.loadGoogleMap();
+			this.showMapView();
+			
 			var autocomplete = new google.maps.places.Autocomplete($('#searchPlace')[0]);
 			google.maps.event.addListener(autocomplete, 'place_changed', function() {
 				var place = autocomplete.getPlace();
@@ -87,36 +99,21 @@ var Application = (function() {
 			}
 		},
 		getPlacesForCountry: function(country) {
-			$.getJSON('/getPlacesForCountry?country=' + country, function(response) {
-				if (response.length > 1) {
-					alert("Found more than one matching country..");
-				} else if (response.length == 0) {
-					//TODO enhance this alert
-					alert("No matching country found!!");
-				} else {
-					response = response[0];
-					var locations = response['/location/location/contains'];
-					for (var idx = 0, len = locations.length; idx < len; idx++) {
-						Application.createMarker(locations[idx]);
-					}
-				}
+			Client.getPlacesForCountry(country, function(locations) {
+				Application.handleLocations(locations);
 			});
 		},
 		getPlacesForLocality: function(locality) {
-			$.getJSON('getPlacesForLocality?locality=' + locality, function(response) {
-				if (response.length > 1) {
-					alert("Found more than one matching locality..");
-				} else if (response.length == 0) {
-					//TODO enhance this alert
-					alert("No matching locality found!!");
-				} else {
-					response = response[0];
-					var locations = response['/travel/travel_destination/tourist_attractions'];
-					for (var idx = 0, len = locations.length; idx < len; idx++) {
-						Application.createMarker(locations[idx]);
-					}
-				}
+			Client.getPlacesForLocality(locality, function(locations) {
+				Application.handleLocations(locations);
 			});
+		},
+		handleLocations: function(locations) {
+			for (var idx = 0, len = locations.length; idx < len; idx++) {
+				places.push(locations[idx]);
+				Application.createMarker(locations[idx]);
+				Application.createTile(locations[idx]);
+			}
 		},
 		createMarker: function(place) {
 			var marker = new google.maps.Marker({
@@ -128,17 +125,14 @@ var Application = (function() {
 			var placeName = place.name;
 			var placeId = place.id;
 			google.maps.event.addListener(marker, 'click', function() {
-				$.getJSON('/getDescription?id=' + placeId, function(response) {
-					var values = response['property']['/common/topic/description']['values'];
-					if (values.length) {
-						if (!infowindow) {
-							infowindow = new google.maps.InfoWindow({
-								content: 'Clicked on marker' 
-							});
-						}
-						infowindow.setContent('<b>' + placeName + '</b><br/>' + values[0].value);
-						infowindow.open(map, marker);						
-					}					
+				Client.getDescription(placeId, function(description) {
+					if (!infowindow) {
+						infowindow = new google.maps.InfoWindow({
+							content: 'Clicked on marker' 
+						});
+					}
+					infowindow.setContent('<b>' + placeName + '</b><br/>' + description);
+					infowindow.open(map, marker);
 				});
 			});
 		},
@@ -151,7 +145,38 @@ var Application = (function() {
 				 map = new google.maps.Map(document.getElementById('map'), mapOptions);				
 			}
 		},
-				search : function (place, offset, type) {
+		showMapView: function() {
+			$('#map').show();
+			$('#tile').hide();
+		},
+		showTileView: function() {
+			$('#map').hide();
+			$('#tile').show();
+		},
+		clearTiles: function() {
+			delete tiles;
+			tiles = [];
+			$('#tile').empty();
+		},
+		createTile: function(location) {
+			var config = {
+					mid: location.mid,
+					name: location.name,
+					images: location['/common/topic/image']
+			};
+			var tile = new Tile(config);
+			tiles.push(tile);
+			location.tile = tile;
+			//GHM should render all tile at once or render one by one?
+			tile.renderInto($('#tile'));
+		},
+		loadTiles: function(places) {
+			this.clearTiles();
+			for (var idx = 0, len = places.length; idx < len; idx++) {
+				this.createTile(places[idx]);
+			}
+		},
+		search : function (place, offset, type) {
 			var paramJson = {near: place, offset : offset, limit : limit};
 			type && (paramJson.section = type);
 			$.ajax({

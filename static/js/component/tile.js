@@ -1,0 +1,104 @@
+/**
+ * UI component that will represent a place
+ * with text and images
+ * @param config {
+ * 					images: [{link: ..., text: ...}],
+ * 					name: ...
+ * 					mid: ...
+ * 				}
+ */
+
+function Tile(config) {
+	this.init(config);
+}
+
+Util.extend(Component, Tile, (function() {
+
+	var index = 0;
+	
+	var tileDialog = null;
+	
+	var dialogButtons = [{
+		label: 'Add',
+		type: 'primary',
+		action: 'addToItinery'
+	}, {
+		label: 'Remove',
+		type: 'danger',
+		action: 'removeFromItinery'
+	}];
+	
+	var imagePrefix = 'https://usercontent.googleapis.com/freebase/v1/image/';
+	
+	function getId() {
+		return 'tile' + index++;
+	}
+	
+	function getImageUrl(imageId) {
+		return imagePrefix + imageId;
+	}
+	
+	return {
+		init: function(config) {
+			this.id = getId();
+			this.mid = config.mid;
+			this.images = config.images || [];
+			this.name = config.name;
+			this.description = config.description;
+		},
+		setDescription: function(description) {
+			this.description = description;
+		},
+		render: function(h) {
+			h.push('<div class="small tile" id="', this.id, '">');
+			h.push('<div id="', this.id + '_images', '">');
+			var image;
+			for (var idx = 0, len = this.images.length; idx < len; idx++) {
+				//render image
+				image = this.images[idx];
+				h.push('<image src="', getImageUrl(image.id), '"alt="', image.name,
+						'" width="100%" height="100%">');
+				//TODO render multiple images in a loop
+				break;
+			}
+			h.push('</div>');
+			h.push('<div class="tile_title">', this.name, '</div>');			
+			h.push('</div>');
+		},
+		renderInto: function(ele) {
+			ele.append(this.getHtml());
+			var me = this;
+			$('#' + me.id).click(function() {
+					me.handleClick();
+			});
+		},
+		handleClick: function() {
+			if (this.description) {
+				this.showPopup();
+			} else {
+				var me = this;
+				Client.getDescription(this.mid, function(description) {
+					me.setDescription(description);
+					me.showPopup();
+				});	
+			}
+		},
+		showPopup: function() {
+			if (!tileDialog) {
+				tileDialog = new Dialog({
+					title: this.name,
+					content: this.description,
+					buttons: dialogButtons,
+					addCloseButton: true
+				});
+			} else {
+				tileDialog.setTitle(this.name);
+				tileDialog.setContent(this.description);
+			}
+			var container = $('#dialogContainer');
+			container.empty();
+			container.append(tileDialog.getHtml());
+			container.modal('show');
+		}
+	};
+})());

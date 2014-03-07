@@ -1,0 +1,10 @@
+.tile {
+	display: inline-block;
+	margin: 10px;
+	cursor: pointer;
+}
+
+.small.tile {
+	width: 250px;
+	height: 250px;
+}

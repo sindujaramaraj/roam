@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Just Roam - Its all about your itinery!</title>
+		<title>Roam</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 	</head>
 	<link rel="stylesheet" href="external/leaflet-0.6.4/leaflet.css" />
 	<link rel="stylesheet" href="external/bootstrap/css/bootstrap.min.css" />
 	<link rel="stylesheet" href="css/style.css" />
+	<link rel="stylesheet" href="css/tile.css" />
 	<body>
-		<div class='containedr'>
+		<div class='container'>
 			<div id='searchForPlaces'>
 				<input id='searchPlace' type='text' class='form-control' placeholder='Enter a location'/>
 			</div>
@@ -32,13 +33,16 @@
 					</div>
 					<div id="tabView">
 						<ul class="nav nav-pills">
-							<li>Map</li>
-							<li>Tiles</li>
+							<li><a href="#" id="showMapViewLink">Map view</a></li>
+							<li><a href="#" id="showTileViewLink">Tile View</a></li>
 						</ul>
-					</div>		
+					</div>
+					<!-- TODO Store preference to show Tile|Map view by default -->		
 					<div id="map"></div>
+					<div id="tile"></div>
 				</div>
 			</div>
+			<div id='dialogContainer' role='dialog' class='modal fade'></div>
 		</div>
 	</body>
 	<script src="external/leaflet-0.6.4/leaflet.js"></script>
@@ -46,5 +50,9 @@
 	<script src="external/bootstrap/js/bootstrap.min.js"></script>
 	<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=places"></script>
 	<script src="js/util.js"></script>
-	<script src="js/application.js"></script>	
+	<script src="js/client.js"></script>
+	<script src="js/application.js"></script>
+	<script src="js/component/component.js"></script>
+	<script src="js/component/tile.js"></script>
+	<script src="js/component/dialog.js"></script>	
 </html>

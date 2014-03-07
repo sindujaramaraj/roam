@@ -24,6 +24,14 @@ var Util = (function() {
 				data.push(elements[idx].name + "=" + elements[idx].value);
 			}
 			return data.join('&');
-		}		
+		},
+		extend: function(baseClass, extendClass, obj) {
+			for (var key in baseClass.prototype) {
+				extendClass.prototype[key] = baseClass.prototype[key];
+			}
+			for (var key in obj) {
+				extendClass.prototype[key] = obj[key];
+			}
+		}
 	};
 })();

@@ -5,20 +5,20 @@ function FreebaseAPIConnector() {
 }
 
 FreebaseAPIConnector.prototype = (function() {
-	var FREEBASE_HOST_NAME = 'api.freebase.com';
-	var FREEBASE_MQL_PATH = '/api/service/mqlread';
 	var API_KEY = 'AIzaSyDs6Zvokuo4OWar6C13oUGXiQNS811RAig';
 	var GOOGLE_API_HOST_NAME = 'www.googleapis.com';
 	var GOOGLE_TOPIC_API_PATH = '/freebase/v1/topic';
+	var GOOGLE_MQL_READ_PATH = '/freebase/v1/mqlread';
 	
 	return {
-		getPlacesForCountry: function(country, res) {
+		getPlacesForCountry: function(country, callback) {
 			var query = [{
-				  "name": country,
-				  "id": null,
-				  "mid": null,
-				  "/location/location/contains": [{
-				    "name": null,
+				"name": country,
+				"id": null,
+				"mid": null,
+				"type": [],
+				"/location/location/contains": [{
+					"name": null,
 				    "id": null,
 				    "mid": null,
 				    "type": "/travel/tourist_attraction",
@@ -26,39 +26,44 @@ FreebaseAPIConnector.prototype = (function() {
 				    "/location/location/geolocation": {
 				      "latitude": null,
 				      "longitude": null
-				    }
+				    },
+				    "/common/topic/image":[{}]
 				  }]
 				}];
-			/*freebase.paginate(query, function(response) {
-				res.send(response);
-			});*/
-			var params = ServerUtil.getURLParams({query: JSON.stringify(query)});
-			ServerUtil.makeHttpGet(FREEBASE_HOST_NAME, FREEBASE_MQL_PATH + params, callback);
+			this.getPlaces(query, callback);
 		},
 		getDetailsForPlace: function(place, res) {
 			
 		},
-		getPlacesForLocality: function(locality, res) {
+		getPlacesForLocality: function(locality, callback) {
 			var query = [{
 				"mid": null,
 				"id": null,
 				"name": locality,
-				  "/travel/travel_destination/tourist_attractions": [{
-				    "name": null,
+				"/travel/travel_destination/tourist_attractions": [{
+					"name": null,
 				    "id": null,
 				    "mid": null,
 				    "count": null,
+				    "type": [],
 				    "/location/location/geolocation": {
 				    	"latitude": null,
 					    "longitude": null
-				    }
+				    },
+				    "/common/topic/image":[{}]
 				  }]
 				}];
 			/*freebase.paginate(query, function(response) {
 				res.send(response);
 			});*/
-			var params = ServerUtil.getURLParams({query: JSON.stringify(query)});
-			ServerUtil.makeHttpGet(FREEBASE_HOST_NAME, FREEBASE_MQL_PATH + params, callback);
+			this.getPlaces(query, callback);
+		},
+		getPlaces: function(query, callback) {
+			var params = ServerUtil.getURLParams({
+				query: encodeURIComponent(JSON.stringify(query)),
+				key: API_KEY
+			});
+			ServerUtil.makeHttpGet(GOOGLE_API_HOST_NAME, GOOGLE_MQL_READ_PATH + params, callback);
 		},
 		getDescription: function(id, callback) {
 			var params = {
