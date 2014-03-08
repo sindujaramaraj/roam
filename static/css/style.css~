@@ -3,10 +3,6 @@ body {
     margin: 0;
 }
 
-h1, h4 {
-    font-family: 'Vampiro One', cursive;		
-}
-
 html, body, .left, .right {
     height: 100%;
 }

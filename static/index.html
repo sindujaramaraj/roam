@@ -4,22 +4,26 @@
 		<title>Roam</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 	</head>
-	<link rel="stylesheet" href="external/leaflet-0.6.4/leaflet.css" />
+	<link href='http://fonts.googleapis.com/css?family=Vampiro+One' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="external/bootstrap/css/bootstrap.min.css" />
 	<link rel="stylesheet" href="css/style.css" />
 	<link rel="stylesheet" href="css/tile.css" />
+	<link rel="stylesheet" href="css/itinerary.css" />
 	<body>
+		<div class='container'>
+			<h1>Just Roam</h1>
+		</div>
 		<div class='container'>
 			<div id='searchForPlaces'>
 				<input id='searchPlace' type='text' class='form-control' placeholder='Enter a location'/>
 			</div>
 			<div id='planning'>
 				<div class="left ib">
-					<div id="itinery"></div>		
+					<div id="itinerary"></div>		
 				</div>
 				<div class="right ib">
 					<div id="search">
-						<ul class="nav nav-pills">
+						<ul class="nav nav-pills hide">
 		  					<li><a href="#" onclick="searchByType('sights')">Sights</a></li>
 		  					<li><a href="#" onclick="searchByType('trending')">Trending</a></li>
 		  					<li><a href="#" onclick="searchByType('specials')">Specials</a></li>
@@ -45,7 +49,6 @@
 			<div id='dialogContainer' role='dialog' class='modal fade'></div>
 		</div>
 	</body>
-	<script src="external/leaflet-0.6.4/leaflet.js"></script>
 	<script src="external/jquery/js/jquery-2.0.2.min.js"></script>
 	<script src="external/bootstrap/js/bootstrap.min.js"></script>
 	<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=places"></script>
@@ -54,5 +57,6 @@
 	<script src="js/application.js"></script>
 	<script src="js/component/component.js"></script>
 	<script src="js/component/tile.js"></script>
-	<script src="js/component/dialog.js"></script>	
+	<script src="js/component/dialog.js"></script>
+	<script src="js/component/itinerary.js"></script>	
 </html>

@@ -44,10 +44,17 @@ Util.extend(Component, Tile, (function() {
 			this.mid = config.mid;
 			this.images = config.images || [];
 			this.name = config.name;
-			this.description = config.description;
+			this.descriptionLoaded = false;
 		},
 		setDescription: function(description) {
 			this.description = description;
+			this.descriptionLoaded = true;
+		},
+		getMid: function() {
+			return this.mid;
+		},
+		isDescriptionLoaded: function() {
+			return this.descriptionLoaded;
 		},
 		render: function(h) {
 			h.push('<div class="small tile" id="', this.id, '">');
@@ -65,15 +72,14 @@ Util.extend(Component, Tile, (function() {
 			h.push('<div class="tile_title">', this.name, '</div>');			
 			h.push('</div>');
 		},
-		renderInto: function(ele) {
-			ele.append(this.getHtml());
+		addEvents: function() {
 			var me = this;
 			$('#' + me.id).click(function() {
 					me.handleClick();
 			});
 		},
 		handleClick: function() {
-			if (this.description) {
+			if (this.isDescriptionLoaded()) {
 				this.showPopup();
 			} else {
 				var me = this;
@@ -95,10 +101,19 @@ Util.extend(Component, Tile, (function() {
 				tileDialog.setTitle(this.name);
 				tileDialog.setContent(this.description);
 			}
+			tileDialog.addEventListener('click', this, this.handleDialogEvents);
 			var container = $('#dialogContainer');
-			container.empty();
-			container.append(tileDialog.getHtml());
+			tileDialog.renderInto(container, false);
 			container.modal('show');
+		},
+		handleDialogEvents: function(evt) {
+			switch (evt.type) {
+				case 'click':
+					var action = evt.data.action;
+					this.dispatch('action', {
+						action: action
+					});
+			}
 		}
 	};
 })());

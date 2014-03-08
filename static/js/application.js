@@ -22,17 +22,14 @@ function searchByType(type) {
 var Application = (function() {
 	//leaflet map object
 	var map = null;
-	var infowindow = null;
-	var mapLoaded = false;
-	var itinery = [];
+	var itinerary = null;
 	var locationItems = {};
 	var limit = 30;
 	var layers = [];
 	var tiles = [];
-	var places = [];
+	var places = {};
 	
 	//html
-	var itineryElem = $("#itinery");
 	var path = null;
 	
 	function getPlaceType(types) {
@@ -74,6 +71,11 @@ var Application = (function() {
 				//$('#planning').show();
 				
 				//Application.search(place.name);
+				//show itinerary
+				if (itinerary == null) {
+					itinerary = new Itinerary();
+					itinerary.renderInto($("#itinerary"));
+				}
 			});	
 			this.setHeight();
 		},
@@ -110,7 +112,7 @@ var Application = (function() {
 		},
 		handleLocations: function(locations) {
 			for (var idx = 0, len = locations.length; idx < len; idx++) {
-				places.push(locations[idx]);
+				places[locations[idx].mid] = locations[idx];
 				Application.createMarker(locations[idx]);
 				Application.createTile(locations[idx]);
 			}
@@ -122,18 +124,16 @@ var Application = (function() {
 			var latlng = place['/location/location/geolocation'];
 			var gLatLng = new google.maps.LatLng(latlng.latitude, latlng.longitude);
 			marker.setPosition(gLatLng);
-			var placeName = place.name;
 			var placeId = place.id;
 			google.maps.event.addListener(marker, 'click', function() {
-				Client.getDescription(placeId, function(description) {
-					if (!infowindow) {
-						infowindow = new google.maps.InfoWindow({
-							content: 'Clicked on marker' 
-						});
-					}
-					infowindow.setContent('<b>' + placeName + '</b><br/>' + description);
-					infowindow.open(map, marker);
-				});
+				if (place.tile.isDescriptionLoaded()) {
+					place.tile.showPopup();
+				} else {
+					Client.getDescription(placeId, function(description) {
+						place.tile.setDescription(description);
+						place.tile.showPopup();
+					});	
+				}
 			});
 		},
 		loadGoogleMap: function(place) {
@@ -165,10 +165,23 @@ var Application = (function() {
 					images: location['/common/topic/image']
 			};
 			var tile = new Tile(config);
+			tile.addEventListener('action', this, this.handleTile);
 			tiles.push(tile);
 			location.tile = tile;
 			//GHM should render all tile at once or render one by one?
-			tile.renderInto($('#tile'));
+			tile.renderInto($('#tile'), true);
+		},
+		handleTile: function(event) {
+			var eventSource = event.data.eventSource;
+			switch (event.type) {
+				case 'action':
+					if (event.data.action == 'addToItinery') {
+						this.addToItinerary(places[eventSource.getMid()]);
+					}
+			}
+		},
+		addToItinerary: function(location) {
+			
 		},
 		loadTiles: function(places) {
 			this.clearTiles();
@@ -222,35 +235,13 @@ var Application = (function() {
 			});
 		},
 		addToPlan : function (event) {
-			var locationItem = locationItems[event.target.id];
-			if (!locationItem) {
-				return;
-			}
-			
-			//find distance with previous location in itinery			
-			if (itinery.length > 0) {
-				var distance = itinery[itinery.length - 1].latlng.distanceTo(locationItem.latlng);
-				itineryElem.append("<div class='distance'><span class='text-muted'>" + distance + "</span></div>");
-			}
-			//add location item to itinery
-			itineryElem.append("<div class='itinery-item'><span class='text-info'>" + locationItem.name + "</span></div>");
-			itinery.push(locationItem);
-			path.addLatLng(locationItem.latlng);
-			path.bringToFront();
-			map.fitBounds(path.getBounds());			
+						
 		},
 		findDistance : function (fromLatLng, toLatLng) {
 			
 		},
 		clearMap : function () {
-			for (var idx = 0, len = layers.length; idx < len; idx++) {
-				layers[idx].clearLayers();
-			}
-			map.removeLayer(path);
-			layers = [];
-			itinery = [];
-			locationItems = {};
-			path = new L.Polyline([], {color : "red"}).addTo(map);
+			
 		}
 	};
 })();

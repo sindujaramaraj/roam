@@ -41,8 +41,8 @@ Util.extend(Component, Dialog, {
 		      '</div>',
 		      '<div class="modal-footer">');
 				for (var idx = 0, len = this.buttons.length; idx < len; idx++) {
-					h.push('<button type="button" class="btn btn-',
-							this.buttons[idx].type, '">', this.buttons[idx].label, '</button>');
+					h.push('<button type="button" class="acionBtn btn btn-',
+							this.buttons[idx].type, '" action="', this.buttons[idx].action, '">', this.buttons[idx].label, '</button>');
 				}
 				if (this.addCloseButton) {
 					h.push('<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>');
@@ -51,5 +51,16 @@ Util.extend(Component, Dialog, {
 		    '</div>',//.modal-content
 		  '</div>', // .modal-dialog
 		'</div>');//.modal
+	},
+	addEvents: function() {
+		var me = this;
+		$('.modal-dialog button.acionBtn').click(function() {
+			var actionNode = this.attributes['action'];
+			if (actionNode) {
+				me.dispatch('click', {
+					action: actionNode.value
+				});	
+			}
+		});
 	}
 });
