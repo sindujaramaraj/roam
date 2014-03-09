@@ -28,7 +28,7 @@ var Client = {
 			});
 		},
 		getPlacesForLocality: function(locality, callback) {
-			$.getJSON('getPlacesForLocality?locality=' + locality, function(response) {
+			$.getJSON('/getPlacesForLocality?locality=' + locality, function(response) {
 				if (response.result) {
 					response = response.result;
 				} else {
@@ -46,5 +46,12 @@ var Client = {
 					callback(locations);
 				}
 			});
+		},
+		saveItinerary: function(itinerary, callback) {
+			$.post('/saveItinerary', {
+				itinerary: itinerary
+			}, function(response) {			
+				callback(response);
+			}, 'json');
 		}
 };

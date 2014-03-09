@@ -15,3 +15,7 @@
 #itiContent {
 	margin-top: 5px;
 }
+
+.itiItem h6 {
+	display: inline-block;
+}

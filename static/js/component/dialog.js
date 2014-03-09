@@ -13,6 +13,7 @@
  * 				}
  */
 function Dialog(config) {
+	this.register();
 	this.title = config.title;
 	this.content = config.content;
 	this.buttons = config.buttons;

@@ -4,7 +4,7 @@ var mongoose = require('mongoose'),
 var itinerarySchema = new Schema({
 	owner: String,
 	destination: String,
-	content: {},
+	dayItinerary: [],
 	created: {type: Date, default: Date.now}
 });
 

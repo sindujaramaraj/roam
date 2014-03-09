@@ -75,9 +75,18 @@ var Application = (function() {
 				if (itinerary == null) {
 					itinerary = new Itinerary();
 					itinerary.renderInto($("#itinerary"));
+					itinerary.addEventListener('click', this, this.handleItineraryAction);
 				}
 			});	
 			this.setHeight();
+		},
+		handleItineraryAction: function(event) {
+			switch (event.data.action) {
+				case 'save':
+					break;
+				case 'reset':
+					break;
+			}
 		},
 		setHeight: function () {
 			var totalHeight = $('body')[0].offsetHeight;
@@ -172,7 +181,7 @@ var Application = (function() {
 			tile.renderInto($('#tile'), true);
 		},
 		handleTile: function(event) {
-			var eventSource = event.data.eventSource;
+			var eventSource = event.eventSource;
 			switch (event.type) {
 				case 'action':
 					if (event.data.action == 'addToItinery') {
@@ -181,7 +190,11 @@ var Application = (function() {
 			}
 		},
 		addToItinerary: function(location) {
-			
+			itinerary.addItem(new ItineraryItem({
+				name: location.name,
+				mid: location.mid,
+				geoloc: location['/location/location/geometry']
+			}));
 		},
 		loadTiles: function(places) {
 			this.clearTiles();

@@ -14,9 +14,8 @@ function Tile(config) {
 
 Util.extend(Component, Tile, (function() {
 
-	var index = 0;
-	
 	var tileDialog = null;
+	var dialogContainer = $('#dialogContainer');
 	
 	var dialogButtons = [{
 		label: 'Add',
@@ -30,17 +29,13 @@ Util.extend(Component, Tile, (function() {
 	
 	var imagePrefix = 'https://usercontent.googleapis.com/freebase/v1/image/';
 	
-	function getId() {
-		return 'tile' + index++;
-	}
-	
 	function getImageUrl(imageId) {
 		return imagePrefix + imageId;
 	}
 	
 	return {
 		init: function(config) {
-			this.id = getId();
+			this.register();
 			this.mid = config.mid;
 			this.images = config.images || [];
 			this.name = config.name;
@@ -64,7 +59,7 @@ Util.extend(Component, Tile, (function() {
 				//render image
 				image = this.images[idx];
 				h.push('<image src="', getImageUrl(image.id), '"alt="', image.name,
-						'" width="100%" height="100%">');
+						'" class="img-responsive">');
 				//TODO render multiple images in a loop
 				break;
 			}
@@ -102,9 +97,8 @@ Util.extend(Component, Tile, (function() {
 				tileDialog.setContent(this.description);
 			}
 			tileDialog.addEventListener('click', this, this.handleDialogEvents);
-			var container = $('#dialogContainer');
-			tileDialog.renderInto(container, false);
-			container.modal('show');
+			tileDialog.renderInto(dialogContainer, false);
+			dialogContainer.modal('show');
 		},
 		handleDialogEvents: function(evt) {
 			switch (evt.type) {
@@ -113,6 +107,9 @@ Util.extend(Component, Tile, (function() {
 					this.dispatch('action', {
 						action: action
 					});
+					tileDialog.removeEventListener('click', this);
+					dialogContainer.modal('hide');
+					break;
 			}
 		}
 	};
