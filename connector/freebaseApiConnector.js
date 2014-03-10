@@ -1,4 +1,4 @@
-var ServerUtil = require('./serverUtil.js');
+var ServerUtil = require('../serverUtil.js');
 
 /**
  * Connector to interact with google Freebase Api's

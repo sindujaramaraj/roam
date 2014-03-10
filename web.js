@@ -38,9 +38,9 @@ app.on('error', function(err) {
 });
 
 /* App */
-var fsApiConnector = require('./fsApiConnector.js');
-var googleApiConnector = require('./googleApiConnector.js');
-var freebaseApiConnector = require('./freebaseApiConnector.js');
+var fsApiConnector = require('./connector/fsApiConnector.js');
+var googleApiConnector = require('./connector/googleApiConnector.js');
+var freebaseApiConnector = require('./connector/freebaseApiConnector.js');
 
 /* Server init */
 app.get('/', function(req, res) {

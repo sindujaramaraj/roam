@@ -1,5 +1,5 @@
 var https = require('https');
-var ServerUtil = require('./serverUtil.js');
+var ServerUtil = require('../serverUtil.js');
 
 /**
  * FourSquare Api Connector

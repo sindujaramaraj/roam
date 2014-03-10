@@ -1,4 +1,4 @@
-var ServerUtil = require('./serverUtil.js');
+var ServerUtil = require('../serverUtil.js');
 
 /**
  * Google API connector
