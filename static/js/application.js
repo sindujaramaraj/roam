@@ -77,6 +77,7 @@ var Application = (function() {
 					itinerary.renderInto($("#itinerary"));
 					itinerary.addEventListener('click', this, this.handleItineraryAction);
 				}
+				itinerary.setDestination(place.name);
 			});	
 			this.setHeight();
 		},

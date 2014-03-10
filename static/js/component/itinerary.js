@@ -11,6 +11,9 @@ function Itinerary(config) {
 }
 
 Util.extend(Component, Itinerary, {
+	setDestination: function(destination) {
+		this.destination = destination;
+	},
 	render: function(h) {
 		h.push('<div id="', this.id, '" class="">',
 				'<div id="itineraryHeader"><h4>Itinerary</h4></div>');
@@ -50,6 +53,12 @@ Util.extend(Component, Itinerary, {
 	},
 	resetItinerary: function() {
 		
+	},
+	findExistingItinerary: function() {
+		Client.getItineraryByDestination(this.destination, function(response) {
+			console.log(response);
+		});
+		return;
 	},
 	getData: function() {
 		var itinerary = {

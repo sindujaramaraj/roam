@@ -1,8 +1,9 @@
 var ServerUtil = require('./serverUtil.js');
 
-function FreebaseAPIConnector() {
-	
-}
+/**
+ * Connector to interact with google Freebase Api's
+ */
+function FreebaseAPIConnector() {}
 
 FreebaseAPIConnector.prototype = (function() {
 	var API_KEY = 'AIzaSyDs6Zvokuo4OWar6C13oUGXiQNS811RAig';
@@ -11,6 +12,9 @@ FreebaseAPIConnector.prototype = (function() {
 	var GOOGLE_MQL_READ_PATH = '/freebase/v1/mqlread';
 	
 	return {
+		/**
+		 * Fetch places from freebase by Country
+		 */
 		getPlacesForCountry: function(country, callback) {
 			var query = [{
 				"name": country,
@@ -30,11 +34,11 @@ FreebaseAPIConnector.prototype = (function() {
 				    "/common/topic/image":[{}]
 				  }]
 				}];
-			this.getPlaces(query, callback);
+			this._getPlaces(query, callback);
 		},
-		getDetailsForPlace: function(place, res) {
-			
-		},
+		/**
+		 * Fetch places from Freebase by Locality
+		 */
 		getPlacesForLocality: function(locality, callback) {
 			var query = [{
 				"mid": null,
@@ -56,15 +60,18 @@ FreebaseAPIConnector.prototype = (function() {
 			/*freebase.paginate(query, function(response) {
 				res.send(response);
 			});*/
-			this.getPlaces(query, callback);
+			this._getPlaces(query, callback);
 		},
-		getPlaces: function(query, callback) {
+		_getPlaces: function(query, callback) {
 			var params = ServerUtil.getURLParams({
 				query: encodeURIComponent(JSON.stringify(query)),
 				key: API_KEY
 			});
 			ServerUtil.makeHttpGet(GOOGLE_API_HOST_NAME, GOOGLE_MQL_READ_PATH + params, callback);
 		},
+		/**
+		 * Fetch description of a place from freebase
+		 */
 		getDescription: function(id, callback) {
 			var params = {
 					key: API_KEY,

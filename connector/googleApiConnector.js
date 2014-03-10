@@ -1,8 +1,9 @@
 var ServerUtil = require('./serverUtil.js');
 
-function GoogleAPIConnector() {
-	
-}
+/**
+ * Google API connector
+ */
+function GoogleAPIConnector() {}
 
 GoogleAPIConnector.prototype = (function() {
 	var PLACES_PATH = '/maps/api/place/details/json';

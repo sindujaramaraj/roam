@@ -1,5 +1,8 @@
 var https = require('https');
 
+/**
+ * 
+ */
 var ServerUtil = {
 	getURLParams: function (params, defaultParams) {
 		var paramsArr = defaultParams ? defaultParams.slice() : [];

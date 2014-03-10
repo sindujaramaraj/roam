@@ -53,5 +53,10 @@ var Client = {
 			}, function(response) {			
 				callback(response);
 			}, 'json');
+		},
+		getItineraryByDestination: function(destination, callback) {
+			$.getJSON('/getItineraryByDestination?destination=' + destination, function(response) {
+				
+			});
 		}
 };
