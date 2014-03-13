@@ -1,6 +1,9 @@
 //some init stuffs on page load
 $(document).ready(function() {
-	//$('#planning').hide();
+	$('#planning').hide();
+	$('#loginLink').click(function() {
+		Application.showLoginDialog();
+	});
 	$('#showMapViewLink').click(function() {
 		Application.showMapView();
 	});
@@ -28,6 +31,7 @@ var Application = (function() {
 	var layers = [];
 	var tiles = [];
 	var places = {};
+	var loginDialog = null;
 	
 	//html
 	var path = null;
@@ -47,6 +51,7 @@ var Application = (function() {
 	
 	return  {
 		init : function() {
+			this.checkLogin();
 			//load map view or tile view by preference
 			//for now let it be map view
 			this.loadGoogleMap();
@@ -81,6 +86,83 @@ var Application = (function() {
 			});	
 			this.setHeight();
 		},
+		checkLogin: function() {
+			Client.isUserLoggedIn(function(response) {
+				if (response.status) {
+					$('#loginLink').hide();
+					//show user info
+				}
+			});
+		},
+		showLoginDialog: function() {
+			if (loginDialog == null) {
+				loginDialog = new Dialog({
+					title: 'Signup',
+					content: this._getLoginHtml(),
+					buttons: [] || [{
+						label: 'Join',
+						action: 'signup',
+						type: 'primary',
+						isSubmit: 'true'
+					}]
+				});
+				loginDialog.renderInto($('#loginContainer'));
+				//hide login button
+				$('#signinBtn').hide();
+				$('#signupPrompt').hide();
+				
+				//handle sign up
+				$('#signupBtn').click(function() {
+					$('#loginForm').attr('action', '/signup');
+					$('#loginForm').submit(function (event) {
+						
+					});
+				});
+				//handle signin
+				$('#signupBtn').click(function() {
+					$('#loginForm').attr('action', '/login');
+					$('#loginForm').submit(function (event) {
+						
+					});
+				});
+				
+				//switch login
+				$('#loginPromptLink').click(function() {
+					$('#username').hide();
+					$('#loginPrompt').hide();
+					$('#signupPrompt').show();
+					$('#signupBtn').hide();
+					$('#signinBtn').show();
+					loginDialog.setTitle('Login');
+				});
+				$('#signupPromptLink').click(function() {
+					$('#username').show();
+					$('#loginPrompt').show();
+					$('#signupPrompt').hide();
+					$('#signupBtn').show();
+					$('#signinBtn').hide();
+					loginDialog.setTitle('Join');
+				});
+			}
+			$('#loginContainer').modal('show');
+		},
+		_getLoginHtml: function() {
+			return '<div><form id="loginForm" method="post" role="form">'
+						+ '<div class="form-group"><input id="username" type="text" class="form-control" placeholder="User Name"/></div>'
+			 			+ '<div class="form-group"><input id="email" type="email" class="form-control" placeholder="Email Address"/></div>'
+			 			+ '<div class="form-group"><input id="password" type="password" class="form-control" placeholder="Password"/></div>'
+			 			+ '<button type="submit" id="signupBtn" class="center-block btn btn-primary">Join</button>'
+			 			+ '<button type="submit" id="signinBtn" class="center-block btn btn-primary">Login</button>'
+			 		+ '</form>'
+			 		+ '<div id="loginPrompt"><span>Have an account?</span>&nbsp;&nbsp;'
+			 		+ '<a href="#" id="loginPromptLink">Login</a></div>'
+			 		+ '<div id="signupPrompt"><span>Don\'t have an account?</span>&nbsp;&nbsp;'
+			 		+ '<a href="#" id="signupPromptLink">Signup</a></div>'
+			 		+ '</div>';
+		},
+		handleLoginActions: function(event) {
+			
+		},
 		handleItineraryAction: function(event) {
 			switch (event.data.action) {
 				case 'save':
@@ -91,10 +173,11 @@ var Application = (function() {
 		},
 		setHeight: function () {
 			var totalHeight = $('body')[0].offsetHeight;
-			var searchForPlacesHeight = $('#searchForPlaces')[0].offsetHeight;
-			var planningHeight = (totalHeight - searchForPlacesHeight);
-			$('#planning')[0].style.height = planningHeight + 'px';
-			$('#map')[0].style.height = (planningHeight - $('#search')[0].offsetHeight) + 'px';
+			var headerHeight = $('#header')[0].offsetHeight;
+			var contentHeight = (totalHeight - headerHeight);
+			$('#content')[0].style.height = contentHeight + 'px';
+			$('#map')[0].style.height = (contentHeight - $('#search')[0].offsetHeight
+														- $('#tabView')[0].offsetHeight) + 'px';
 		},
 		getPlaceDetails: function (place) {
 			var type = getPlaceType(place.types);

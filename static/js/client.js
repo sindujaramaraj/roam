@@ -58,5 +58,10 @@ var Client = {
 			$.getJSON('/getItineraryByDestination?destination=' + destination, function(response) {
 				
 			});
+		},
+		isUserLoggedIn: function(callback) {
+			$.getJSON('/checkLogin', function(response) {
+				callback(response.status);
+			});
 		}
 };

@@ -1,21 +1,14 @@
 #itinerary {
-	padding-right: 10px;
 }
 
 #itineraryHeader {
-	padding: 7px;
-	background-color: #5cb85c;
-	margin-top: 5px;
 }
 
 #itineraryHeader h4 {
-	color: #fff;
 }
 
 #itiContent {
-	margin-top: 5px;
 }
 
 .itiItem h6 {
-	display: inline-block;
 }

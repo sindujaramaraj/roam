@@ -15,8 +15,8 @@ app.use(express.favicon());
 app.use(express.logger('dev'));
 app.use(express.bodyParser());
 app.use(express.methodOverride());
-app.use(express.cookieParser('your secret here'));
-app.use(express.session());
+app.use(express.cookieParser('jrcookie'));
+app.use(express.cookieSession());
 app.use(app.router);
 app.use(express.static(__dirname + '/static'));
 
@@ -45,6 +45,26 @@ var freebaseApiConnector = require('./connector/freebaseApiConnector.js');
 /* Server init */
 app.get('/', function(req, res) {
   res.render('index.html');
+});
+
+app.get('/checkLogin', function(req, res) {
+	var response = {};
+	if (req.session.user) {
+		response['status'] = true;
+		response['user'] = req.session.user;
+		response['username'] = req.session.userName;
+	} else {
+		response['status'] = false;
+	}
+	res.send(response);
+});
+
+app.post('/login', function(req, res) {
+	
+});
+
+app.post('/signup', function(req, res) {
+	
 });
 
 app.get('/getVenues', function(req, res) {

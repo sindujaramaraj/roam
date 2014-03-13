@@ -7,7 +7,8 @@
  * 					buttons: [{
  * 						label: 'Button Label',
  * 						action: 'cancel|submit',
- * 						type: 'default|primary'
+ * 						type: 'default|primary',
+ * 						isSubmit: 'true|false'
  * 					],
  * 					addCloseButton: true|false
  * 				}
@@ -23,6 +24,7 @@ function Dialog(config) {
 Util.extend(Component, Dialog, {
 	setTitle: function(title) {
 		this.title = title;
+		$('#' + this.id + "_title").text(title);	
 	},
 	setContent: function(content) {
 		this.content = content;
@@ -35,21 +37,24 @@ Util.extend(Component, Dialog, {
 		    '<div class="modal-content">',
 		      '<div class="modal-header">',
 		        '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>',
-		        '<h4 class="modal-title">', this.title, '</h4>',
+		        '<h4 id="', this.id, '_title" class="modal-title">', this.title, '</h4>',
 		      '</div>',
 		      '<div class="modal-body">',
 		        '<p>', this.content, '</p>',
-		      '</div>',
-		      '<div class="modal-footer">');
-				for (var idx = 0, len = this.buttons.length; idx < len; idx++) {
-					h.push('<button type="button" class="acionBtn btn btn-',
-							this.buttons[idx].type, '" action="', this.buttons[idx].action, '">', this.buttons[idx].label, '</button>');
+		      '</div>');
+				if (this.buttons.length) {
+					h.push('<div class="modal-footer">');
+					for (var idx = 0, len = this.buttons.length; idx < len; idx++) {
+						h.push('<button type="button" class="acionBtn btn btn-',
+								this.buttons[idx].type, '" action="', this.buttons[idx].action, '">', this.buttons[idx].label, '</button>');
+					}
+					if (this.addCloseButton) {
+						h.push('<button type="', this.buttons[idx].isSubmit? "submit" : "button",
+								'" class="btn btn-default" data-dismiss="modal">Close</button>');
+					}
+					h.push('</div>');					
 				}
-				if (this.addCloseButton) {
-					h.push('<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>');
-				}
-		h.push('</div>',
-		    '</div>',//.modal-content
+		    h.push('</div>',//.modal-content
 		  '</div>', // .modal-dialog
 		'</div>');//.modal
 	},

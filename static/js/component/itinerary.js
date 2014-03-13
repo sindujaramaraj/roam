@@ -1,5 +1,7 @@
 /**
  * Display and handles Itinerary
+ * Shows distance between paths and total distance to travel
+ * Suggests modes of communication
  */
 function Itinerary(config) {
 	config = config || {};
@@ -15,9 +17,8 @@ Util.extend(Component, Itinerary, {
 		this.destination = destination;
 	},
 	render: function(h) {
-		h.push('<div id="', this.id, '" class="">',
-				'<div id="itineraryHeader"><h4>Itinerary</h4></div>');
-		h.push('<div id="itiContent">');
+		h.push('<div id="itineraryHeader" class="panel-heading">Itinerary</div>');
+		h.push('<div id="itiContent" class="panel-body"	>');
 		if (this.dayItineraries.length == 0) {
 			h.push('<p class="text-muted">No items yet!</p>');
 		} else {
@@ -26,11 +27,10 @@ Util.extend(Component, Itinerary, {
 			}
 		}
 		h.push('</div>');
-		h.push('<div id="itiFooter" class="btn-toolbar">',
+		h.push('<div id="itiFooter" class="panel-footer btn-toolbar">',
 					'<button id="saveItinerary" type="button" class="btn btn-default btn-sm">Save</button>',
 					'<button id="resetItinerary" type="button" class="btn btn-default btn-sm">Reset</button>',
 				'</div>');
-		h.push('</div>');
 	},
 	addEvents: function() {
 		var me = this;

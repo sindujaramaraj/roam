@@ -10,20 +10,30 @@
 	<link rel="stylesheet" href="css/tile.css" />
 	<link rel="stylesheet" href="css/itinerary.css" />
 	<body>
-		<div class='container'>
-			<h1>Just Roam</h1>
-		</div>
-		<div class='container'>
-			<div id='searchForPlaces'>
-				<input id='searchPlace' type='text' class='form-control' placeholder='Enter a location'/>
-			</div>
-			<div id='planning'>
-				<div class="left ib">
-					<div id="itinerary"></div>		
+		<div id='dialogContainer' role='dialog' class='modal fade'></div>
+		<div id='loginContainer' role='dialog' class='modal fade'></div>
+		<nav id="header" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="#">Just Roam</a>
 				</div>
-				<div class="right ib">
+				<div class="navbar-form navbar-left">
+					<input id='searchPlace' type='text' class='form-control' placeholder='Enter a location'/>
+				</div>
+				<ul class="nav navbar-nav navbar-right">
+					<li><a href='#' id="loginLink">LOGIN</a></li>
+					<li><a href='/about.html' id="loginLink">ABOUT</a></li>
+				</ul>			
+			</div>
+		</nav>
+		<div id="content">
+			<div id='planning'>
+				<div id="itinerary" class="left ib panel panel-inverse">
+							
+				</div>
+				<div class="right ib panel panel-inverse">
 					<div id="search">
-						<ul class="nav nav-pills hide">
+						<ul class="nav nav-pills">
 		  					<li><a href="#" onclick="searchByType('sights')">Sights</a></li>
 		  					<li><a href="#" onclick="searchByType('trending')">Trending</a></li>
 		  					<li><a href="#" onclick="searchByType('specials')">Specials</a></li>
@@ -46,7 +56,7 @@
 					<div id="tile"></div>
 				</div>
 			</div>
-			<div id='dialogContainer' role='dialog' class='modal fade'></div>
+			
 		</div>
 	</body>
 	<script src="external/jquery/js/jquery-2.0.2.min.js"></script>
