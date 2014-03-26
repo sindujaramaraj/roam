@@ -61,7 +61,17 @@ var Client = {
 		},
 		isUserLoggedIn: function(callback) {
 			$.getJSON('/checkLogin', function(response) {
-				callback(response.status);
+				callback(response);
+			});
+		},
+		getMyItineraries: function(callback) {
+			$.getJSON('/getMyItineraries', function(response) {
+				callback(response);
+			});
+		},
+		clearAllItineraries: function() {
+			$.post('/clearAllItineraries', function(response) {
+				alert('done');
 			});
 		}
 };

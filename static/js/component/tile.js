@@ -52,8 +52,9 @@ Util.extend(Component, Tile, (function() {
 			return this.descriptionLoaded;
 		},
 		render: function(h) {
-			h.push('<div class="small tile" id="', this.id, '">');
-			h.push('<div id="', this.id + '_images', '">');
+			h.push('<div class="col-sm-6 col-md-4" id="', this.id, '">');
+			h.push('<div class="thumbnail" id="', this.id + '_thumbnail', '">');
+			h.push('<div class="tileContent" id="', this.id, '_tileContent">');
 			var image;
 			for (var idx = 0, len = this.images.length; idx < len; idx++) {
 				//render image
@@ -63,14 +64,21 @@ Util.extend(Component, Tile, (function() {
 				//TODO render multiple images in a loop
 				break;
 			}
-			h.push('</div>');
-			h.push('<div class="tile_title">', this.name, '</div>');			
-			h.push('</div>');
+			h.push('<div class="caption"><h4>', this.name, '</h4></div></div>');
+			h.push('<div id="', this.id, '_tileFooter">',
+					'<p><a id="', this.id, '_addToItinerary" href="#" class="btn btn-primary">Add</a></p>',
+					'</div>');			
+			h.push('</div></div>');
 		},
 		addEvents: function() {
 			var me = this;
-			$('#' + me.id).click(function() {
-					me.handleClick();
+			$('#' + this.id + '_tileContent').click(function() {
+				me.handleClick();
+			});
+			$('#' + this.id + '_addToItinerary').click(function(event) {
+				me.dispatch('action', {
+					action: 'addToItinery' 
+				});
 			});
 		},
 		handleClick: function() {

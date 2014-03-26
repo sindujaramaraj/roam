@@ -1,6 +1,5 @@
 //some init stuffs on page load
 $(document).ready(function() {
-	$('#planning').hide();
 	$('#loginLink').click(function() {
 		Application.showLoginDialog();
 	});
@@ -9,6 +8,12 @@ $(document).ready(function() {
 	});
 	$('#showTileViewLink').click(function() {
 		Application.showTileView();
+	});
+	$('#myItineraryLink').click(function() {
+		Application.getMyItineraries();
+	});
+	$('#deleteAllItineraryLink').click(function() {
+		Client.clearAllItineraries();
 	});
 	Application.init();
 });
@@ -31,7 +36,9 @@ var Application = (function() {
 	var layers = [];
 	var tiles = [];
 	var places = {};
+	var markers = [];
 	var loginDialog = null;
+	var itineraryDialog = null;
 	
 	//html
 	var path = null;
@@ -59,6 +66,7 @@ var Application = (function() {
 			
 			var autocomplete = new google.maps.places.Autocomplete($('#searchPlace')[0]);
 			google.maps.event.addListener(autocomplete, 'place_changed', function() {
+				Application.clearMarkersAndTile();
 				var place = autocomplete.getPlace();
 				if (!place.geometry) {
 					return;
@@ -68,7 +76,6 @@ var Application = (function() {
 					map.fitBounds(place.geometry.viewport);
 				} else {
 					map.setCenter(place.geometry.location);
-					map.setZoom(17);
 				}
 				
 				Application.getPlaceDetails(place);
@@ -80,96 +87,54 @@ var Application = (function() {
 				if (itinerary == null) {
 					itinerary = new Itinerary();
 					itinerary.renderInto($("#itinerary"));
-					itinerary.addEventListener('click', this, this.handleItineraryAction);
 				}
-				itinerary.setDestination(place.name);
+				itinerary.addDestination(place.name);
 			});	
 			this.setHeight();
-		},
-		checkLogin: function() {
-			Client.isUserLoggedIn(function(response) {
-				if (response.status) {
-					$('#loginLink').hide();
-					//show user info
+		},		
+		getMyItineraries: function() {
+			Client.getMyItineraries(function(response) {
+				if (response.status == 'failure') {
+					alert(response.message);
+				} else {
+					Application.showMyItineraries(response.itineraries);	
 				}
 			});
 		},
-		showLoginDialog: function() {
-			if (loginDialog == null) {
-				loginDialog = new Dialog({
-					title: 'Signup',
-					content: this._getLoginHtml(),
-					buttons: [] || [{
-						label: 'Join',
-						action: 'signup',
-						type: 'primary',
-						isSubmit: 'true'
-					}]
-				});
-				loginDialog.renderInto($('#loginContainer'));
-				//hide login button
-				$('#signinBtn').hide();
-				$('#signupPrompt').hide();
-				
-				//handle sign up
-				$('#signupBtn').click(function() {
-					$('#loginForm').attr('action', '/signup');
-					$('#loginForm').submit(function (event) {
-						
-					});
-				});
-				//handle signin
-				$('#signupBtn').click(function() {
-					$('#loginForm').attr('action', '/login');
-					$('#loginForm').submit(function (event) {
-						
-					});
-				});
-				
-				//switch login
-				$('#loginPromptLink').click(function() {
-					$('#username').hide();
-					$('#loginPrompt').hide();
-					$('#signupPrompt').show();
-					$('#signupBtn').hide();
-					$('#signinBtn').show();
-					loginDialog.setTitle('Login');
-				});
-				$('#signupPromptLink').click(function() {
-					$('#username').show();
-					$('#loginPrompt').show();
-					$('#signupPrompt').hide();
-					$('#signupBtn').show();
-					$('#signinBtn').hide();
-					loginDialog.setTitle('Join');
-				});
+		showMyItineraries: function(itineraries) {
+			var itineraryHtml = ['<div class="row">'];
+			var itinerary;
+			var itineraryTiles = [];
+			for (var idx = 0, len = itineraries.length; idx < len; idx++) {
+				itinerary = new Itinerary(itineraries[idx]);
+				itinerary.addEventListener('action', this, this.handleItinerarySelected);
+				itinerary.renderAsTile(itineraryHtml);
+				itineraryTiles.push(itinerary);
 			}
-			$('#loginContainer').modal('show');
-		},
-		_getLoginHtml: function() {
-			return '<div><form id="loginForm" method="post" role="form">'
-						+ '<div class="form-group"><input id="username" type="text" class="form-control" placeholder="User Name"/></div>'
-			 			+ '<div class="form-group"><input id="email" type="email" class="form-control" placeholder="Email Address"/></div>'
-			 			+ '<div class="form-group"><input id="password" type="password" class="form-control" placeholder="Password"/></div>'
-			 			+ '<button type="submit" id="signupBtn" class="center-block btn btn-primary">Join</button>'
-			 			+ '<button type="submit" id="signinBtn" class="center-block btn btn-primary">Login</button>'
-			 		+ '</form>'
-			 		+ '<div id="loginPrompt"><span>Have an account?</span>&nbsp;&nbsp;'
-			 		+ '<a href="#" id="loginPromptLink">Login</a></div>'
-			 		+ '<div id="signupPrompt"><span>Don\'t have an account?</span>&nbsp;&nbsp;'
-			 		+ '<a href="#" id="signupPromptLink">Signup</a></div>'
-			 		+ '</div>';
-		},
-		handleLoginActions: function(event) {
-			
-		},
-		handleItineraryAction: function(event) {
-			switch (event.data.action) {
-				case 'save':
-					break;
-				case 'reset':
-					break;
+			itineraryHtml.push('</div>');
+			if (!itineraryDialog) {
+				itineraryDialog = new Dialog({
+					title: 'My Itineraries',
+					content: itineraryHtml.join(''),
+					buttons: []
+				});
+			} else {
+				itineraryDialog.setContent(itineraryHtml.join(''));
 			}
+			itineraryDialog.renderInto($('#dialogContainer'), false);
+			for (var idx = 0, len = itineraryTiles.length; idx < len; idx++) {
+				itineraryTiles[idx].addTileEvents();
+			}
+			$('#dialogContainer').modal('show');
+		},
+		handleItinerarySelected: function(evt) {
+			itinerary = evt.eventSource;
+			//clear map
+			this.clearMarkersAndTile();
+			itinerary.renderInto($("#itinerary"));
+			//load destination map and tile
+			//clear and load itinerary on left
+			$('#dialogContainer').modal('hide');
 		},
 		setHeight: function () {
 			var totalHeight = $('body')[0].offsetHeight;
@@ -214,20 +179,23 @@ var Application = (function() {
 			var marker = new google.maps.Marker({
 				map: map
 			});
+			markers.push(marker);
 			var latlng = place['/location/location/geolocation'];
-			var gLatLng = new google.maps.LatLng(latlng.latitude, latlng.longitude);
-			marker.setPosition(gLatLng);
-			var placeId = place.id;
-			google.maps.event.addListener(marker, 'click', function() {
-				if (place.tile.isDescriptionLoaded()) {
-					place.tile.showPopup();
-				} else {
-					Client.getDescription(placeId, function(description) {
-						place.tile.setDescription(description);
+			if (latlng != null) {
+				var gLatLng = new google.maps.LatLng(latlng.latitude, latlng.longitude);
+				marker.setPosition(gLatLng);
+				var placeId = place.id;
+				google.maps.event.addListener(marker, 'click', function() {
+					if (place.tile.isDescriptionLoaded()) {
 						place.tile.showPopup();
-					});	
-				}
-			});
+					} else {
+						Client.getDescription(placeId, function(description) {
+							place.tile.setDescription(description);
+							place.tile.showPopup();
+						});	
+					}
+				});	
+			}
 		},
 		loadGoogleMap: function(place) {
 			if (map == null) {
@@ -237,6 +205,12 @@ var Application = (function() {
 						  };
 				 map = new google.maps.Map(document.getElementById('map'), mapOptions);				
 			}
+		},
+		clearMarkers: function() {
+			for (var idx = 0, len = markers.length; idx < len; idx++) {
+				markers[idx].setMap(null);
+			}
+			markers = [];
 		},
 		showMapView: function() {
 			$('#map').show();
@@ -285,6 +259,10 @@ var Application = (function() {
 			for (var idx = 0, len = places.length; idx < len; idx++) {
 				this.createTile(places[idx]);
 			}
+		},
+		clearMarkersAndTile: function() {
+			this.clearTiles();
+			this.clearMap();
 		},
 		search : function (place, offset, type) {
 			var paramJson = {near: place, offset : offset, limit : limit};
@@ -339,6 +317,103 @@ var Application = (function() {
 		},
 		clearMap : function () {
 			
-		}
+		},
+		checkLogin: function() {
+			Client.isUserLoggedIn(function(response) {
+				if (response.status) {
+					$('#loginLink').hide();
+					//show user info
+				} else {
+					$('#myItineraryLink').hide();
+				}
+			});
+		},
+		showLoginDialog: function() {
+			if (loginDialog == null) {
+				loginDialog = new Dialog({
+					title: 'Signup',
+					content: this._getLoginHtml(),
+					buttons: [] || [{
+						label: 'Join',
+						action: 'signup',
+						type: 'primary',
+						isSubmit: 'true'
+					}]
+				});
+				loginDialog.renderInto($('#dialogContainer'));
+				//hide login button
+				$('#signinBtn').hide();
+				$('#signupPrompt').hide();
+				
+				$('#loginForm').ajaxForm({
+					success: function(response) {
+						if (response.status == 'success') {
+							$('#loginLink').hide();
+							$('#dialogContainer').modal('hide');
+							//TODO show user information
+						} else {
+							$('#dialogMessage').replaceWith('<p class="bg-warning">' + response.message + '</p>');
+						}
+					}
+				});
+				
+				$('#loginForm').submit(function() {
+					$(this).ajaxSubmit();
+					return false;
+				});
+				
+				function formSubmit() {
+					$('#loginForm')[0].submit();
+				}
+				
+				//handle sign up
+				$('#signupBtn').click(function() {
+					$('#loginForm').attr('action', '/signup');
+					formSubmit();
+				});
+				//handle signin
+				$('#signinBtn').click(function() {
+					$('#loginForm').attr('action', '/login');
+					formSubmit();
+				});
+				
+				//switch login
+				$('#loginPromptLink').click(function() {
+					$('#username').hide();
+					$('#loginPrompt').hide();
+					$('#signupPrompt').show();
+					$('#signupBtn').hide();
+					$('#signinBtn').show();
+					loginDialog.setTitle('Login');
+				});
+				$('#signupPromptLink').click(function() {
+					$('#username').show();
+					$('#loginPrompt').show();
+					$('#signupPrompt').hide();
+					$('#signupBtn').show();
+					$('#signinBtn').hide();
+					loginDialog.setTitle('Join');
+				});
+			}
+			$('#dialogContainer').modal('show');
+		},
+		_getLoginHtml: function() {
+			return '<div><div id="dialogMessage"></div>'
+					+ '<form id="loginForm" method="post" role="form" target="postTargetFrame">'
+						+ '<div class="form-group"><input name="username" id="username" type="text" class="form-control" placeholder="User Name"/></div>'
+			 			+ '<div class="form-group"><input name="email" id="email" type="email" class="form-control" placeholder="Email Address"/></div>'
+			 			+ '<div class="form-group"><input name="password" id="password" type="password" class="form-control" placeholder="Password"/></div>'
+			 			+ '<button type="submit" id="signupBtn" class="center-block btn btn-primary">Join</button>'
+			 			+ '<button type="submit" id="signinBtn" class="center-block btn btn-primary">Login</button>'
+			 		+ '</form>'
+			 		+ '<div id="loginPrompt"><span>Have an account?</span>&nbsp;&nbsp;'
+			 		+ '<a href="#" id="loginPromptLink">Login</a></div>'
+			 		+ '<div id="signupPrompt"><span>Don\'t have an account?</span>&nbsp;&nbsp;'
+			 		+ '<a href="#" id="signupPromptLink">Signup</a></div>'
+			 		+ '</div>';
+		},
+		handleLoginActions: function(event) {
+			
+		},
 	};
 })();

@@ -4,6 +4,10 @@
 	cursor: pointer;
 }
 
+.tileContent {
+	cursor: pointer;
+}
+
 .small.tile {
 	width: 100px;
 	height: 100px;

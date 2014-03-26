@@ -49,6 +49,7 @@ app.get('/', function(req, res) {
 
 app.get('/checkLogin', function(req, res) {
 	var response = {};
+	debugger;
 	if (req.session.user) {
 		response['status'] = true;
 		response['user'] = req.session.user;
@@ -57,14 +58,6 @@ app.get('/checkLogin', function(req, res) {
 		response['status'] = false;
 	}
 	res.send(response);
-});
-
-app.post('/login', function(req, res) {
-	
-});
-
-app.post('/signup', function(req, res) {
-	
 });
 
 app.get('/getVenues', function(req, res) {

@@ -45,12 +45,11 @@ Util.extend(Component, Dialog, {
 				if (this.buttons.length) {
 					h.push('<div class="modal-footer">');
 					for (var idx = 0, len = this.buttons.length; idx < len; idx++) {
-						h.push('<button type="button" class="acionBtn btn btn-',
+						h.push('<button type="', this.buttons[idx].isSubmit? "submit" : "button", '" class="acionBtn btn btn-',
 								this.buttons[idx].type, '" action="', this.buttons[idx].action, '">', this.buttons[idx].label, '</button>');
 					}
 					if (this.addCloseButton) {
-						h.push('<button type="', this.buttons[idx].isSubmit? "submit" : "button",
-								'" class="btn btn-default" data-dismiss="modal">Close</button>');
+						h.push('<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>');
 					}
 					h.push('</div>');					
 				}

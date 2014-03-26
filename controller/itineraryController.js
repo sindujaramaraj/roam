@@ -11,10 +11,28 @@ module.exports.controller = function(app) {
 	 */
 	app.post('/saveItinerary', function(req, res) {
 		var itinerary = req.body.itinerary;
-		if (itinerary.id) {
-			updateItinerary(itinerary);
+		function errCallback(err) {
+			res.send({
+				status: 'error',
+				message: err
+			});
+		}
+		if (itinerary._id) {
+			updateItinerary(itinerary, function(itinerary) {
+				res.send({
+					status: 'success',
+					message: 'Itinerary updated'
+				});
+			}, errCallback);
 		} else {
-			createItinerary(itinerary);
+			itinerary.owner = req.session['user'];
+			saveItinerary(itinerary, function(itinerary) {
+				res.send({
+					status: 'success',
+					message: 'Itinerary saved',
+					_id: itinerary._id
+				});
+			}, errCallback);
 		}
 	});
 	
@@ -22,11 +40,35 @@ module.exports.controller = function(app) {
 	 * Retrieve ans itinerary by id
 	 */
 	app.get('/getItinerary', function(req, res) {
-		var id = req.query.id;
+		var id = req.query["id"];
 		Itinerary.find({
 			_id: id
 		}, function(err, itineraries) {
 			
+		});
+	});
+	
+	app.get('/getMyItineraries', function(req, res) {
+		var user = req.session['user'];
+		Itinerary.findItinerariesByUser(user, function(err, itineraries) {
+			if (err) {
+				res.send({
+					status: 'error',
+					message: err
+				});
+				return;
+			}
+			if (itineraries && itineraries.length) {
+				res.send({
+					status: 'success',
+					itineraries: itineraries
+				});
+			} else {
+				res.send({
+					status: 'failure',
+					message: 'You haven\'t created itineraries yet!'
+				});
+			}
 		});
 	});
 	
@@ -51,25 +93,48 @@ module.exports.controller = function(app) {
 			res.send(itineraries);
 		});
 	});
-	
+
+	app.post('/clearAllItineraries', function(req, res) {
+		Itinerary.find(function(err, itineraries) {
+			if (err) {
+				console.error(err);
+			} else {
+				itineraries.forEach(function(itinerary) {
+					itinerary.remove();
+				});
+			}
+		});
+	});
 	/**
 	 * Saves itinerary
 	 */
-	function createItinerary(itinerary) {
+	function saveItinerary(itinerary, callback, errCallback) {
 		var model = new Itinerary(itinerary);
 		model.save(function(err, obj) {
 			if (err) {
-				return console.error(err);	
-			}
-			console.log('saved');
-			return obj;			
+				console.error(err);
+				errCallback(err);
+			} else {
+				return callback(obj);	
+			}			
 		});
 	}
 	
 	/**
-	 * Updates existing itinerary
+	 * Updates an existing itinerary
 	 */
-	function updateItinerary(itinerary) {
-		
+	function updateItinerary(itinerary, callback, errCallback) {
+		var id = itinerary._id;
+		delete itinerary._id;
+		Itinerary.update({
+			_id: id
+		}, itinerary, {}, function(err, obj) {
+			if (err) {
+				console.error(err);
+				errCallback(err);
+			} else {
+				return callback(obj);	
+			}
+		});
 	}
 };

@@ -12,3 +12,7 @@
 
 .itiItem h6 {
 }
+
+.itiTile {
+	cursor: pointer;
+}

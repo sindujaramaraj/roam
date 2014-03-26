@@ -13,16 +13,15 @@ body {
 	margin-right: 10px;
 }
 
-#header #searchForPlaces {
+#searchPlaceContainer {
 	width: 40%;
+}
+#searchPlace {
+	width: 100%;
 }
 
 #content {
 	padding-top: 70px;
-}
-
-h1, h4 {
-    font-family: 'Vampiro One', cursive;		
 }
 
 html, body, .left, .right {

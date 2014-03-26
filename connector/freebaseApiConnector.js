@@ -16,6 +16,8 @@ FreebaseAPIConnector.prototype = (function() {
 		 * Fetch places from freebase by Country
 		 */
 		getPlacesForCountry: function(country, callback) {
+			//list destinations for a country
+			//in subsequent request fetch places around destination
 			var query = [{
 				"name": country,
 				"id": null,
@@ -25,12 +27,17 @@ FreebaseAPIConnector.prototype = (function() {
 					"name": null,
 				    "id": null,
 				    "mid": null,
-				    "type": "/travel/tourist_attraction",
+				    "type|=": [
+				               "/travel/travel_destination",
+				               "/travel/tourist_attraction"
+				             ],	
 				    "count": null,
 				    "/location/location/geolocation": {
 				      "latitude": null,
-				      "longitude": null
+				      "longitude": null,
+				      "optional": true
 				    },
+				    "/common/topic/notable_for": null,
 				    "/common/topic/image":[{}]
 				  }]
 				}];
@@ -52,7 +59,8 @@ FreebaseAPIConnector.prototype = (function() {
 				    "type": [],
 				    "/location/location/geolocation": {
 				    	"latitude": null,
-					    "longitude": null
+					    "longitude": null,
+					    "optional": true
 				    },
 				    "/common/topic/image":[{}]
 				  }]
