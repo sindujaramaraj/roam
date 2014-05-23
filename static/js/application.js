@@ -1,5 +1,11 @@
 //some init stuffs on page load
 $(document).ready(function() {
+	$.fn.switchClass = function(oldClass, newClass) {
+		if (this.hasClass(oldClass)) {
+			this.removeClass(oldClass);
+		}
+		this.addClass(newClass);
+	};
 	$('#loginLink').click(function() {
 		Application.showLoginDialog();
 	});

@@ -22,7 +22,7 @@ Util.extend(Component, Itinerary, {
 	initDayItineraries: function(dayItineraries) {
 		var me = this;
 		dayItineraries.forEach(function(dayItinerary) {
-			me.activeItinerary = me.addAnotherDay();
+			me.addAnotherDay();
 			var items = dayItinerary.items;
 			items.forEach(function(item) {
 				me.addItem(new ItineraryItem(item));
@@ -33,20 +33,31 @@ Util.extend(Component, Itinerary, {
 		this.destinations.push(destination);
 	},	
 	addAnotherDay: function() {
-		var dayItinerary = new DayItinerary({});
+		var dayItinerary = new DayItinerary({
+			day: this.dayItineraries.length + 1
+		});
+		dayItinerary.addEventListener('action', this, this.handleDayEvents);
 		this.dayItineraries.push(dayItinerary);
-		$('#itiContent').append(dayItinerary.getHtml());
+		$('#' + this.id + '_itiContent').append(dayItinerary.getHtml());
+		dayItinerary.addEvents();
+		this.activeItinerary = dayItinerary;
 		return dayItinerary;
+	},
+	handleDayEvents: function(evt) {
+		if (evt.data.action == 'selected') {
+			this.activeItinerary.makeUnSelected();
+			this.activeItinerary = evt.eventSource;
+			this.activeItinerary.makeSelected();
+		}
 	},
 	addItem: function(itineraryItem) {
 		if (!this.activeItinerary) {
-			$('#itiContent').empty();
-			var dayItinerary = this.addAnotherDay();
-			this.activeItinerary = dayItinerary;
+			$('#' + this.id + '_itiContent').empty();
+			this.addAnotherDay();
 		}
 		this.activeItinerary.addItem(itineraryItem);
 	},
-	removeItem: function(index) {
+	removeDay: function(index) {
 		
 	},
 	saveItinerary: function() {
@@ -73,7 +84,7 @@ Util.extend(Component, Itinerary, {
 				dayItinerary: [],
 				_id: this.uid,
 				destination: this.destination,
-				name: $('#itineraryHeader').text()
+				name: $('#' + this.id + '_itineraryHeader').text()
 		};
 		for (var idx = 0, len = this.dayItineraries.length; idx < len; idx++) {
 			itinerary.dayItinerary.push(this.dayItineraries[idx].getData());
@@ -81,8 +92,8 @@ Util.extend(Component, Itinerary, {
 		return itinerary;
 	},
 	render: function(h) {
-		h.push('<div id="itineraryHeader" class="panel-heading">', this.name || 'Itinerary', '</div>');
-		h.push('<div id="itiContent" class="panel-body"	>');
+		h.push('<div id="', this.id, '_itineraryHeader" class="panel-heading">', this.name || 'Itinerary', '</div>');
+		h.push('<div id="', this.id, '_itiContent" class="panel-body"	>');
 		if (this.dayItineraries.length == 0) {
 			h.push('<p class="text-muted">No items yet!</p>');
 		} else {
@@ -91,9 +102,10 @@ Util.extend(Component, Itinerary, {
 			}
 		}
 		h.push('</div>');
-		h.push('<div id="itiFooter" class="panel-footer btn-toolbar">',
-					'<button id="saveItinerary" type="button" class="btn btn-default btn-sm">Save</button>',
-					'<button id="resetItinerary" type="button" class="btn btn-default btn-sm">Reset</button>',
+		h.push('<div id="', this.id, '_itiFooter" class="panel-footer btn-toolbar">',
+				'<button id="addDay" type="button" class="btn btn-default btn-sm">Add Day</button>',	
+				'<button id="saveItinerary" type="button" class="btn btn-default btn-sm">Save</button>',
+				'<button id="resetItinerary" type="button" class="btn btn-default btn-sm">Reset</button>',
 				'</div>');
 	},
 	renderAsTile: function(h) {
@@ -112,14 +124,24 @@ Util.extend(Component, Itinerary, {
 	},
 	addEvents: function() {
 		var me = this;
-		$('#itineraryHeader').click(function() {
-			$('#itineraryHeader').attr('contenteditable', true);
+		$('#' + this.id + '_itineraryHeader').click(function() {
+			$(this).attr('contenteditable', true);
+		});
+		$('#addDay').click(function() {
+			var dayItinerary = me.addAnotherDay();
+			me.activeItinerary = dayItinerary; 
 		});
 		$('#saveItinerary').click(function() {
 			me.saveItinerary();
 		});
 		$('#resetItinerary').click(function() {
 			me.resetItinerary();
+		});
+		this.addDayEvents();
+	},
+	addDayEvents: function() {
+		this.dayItineraries.forEach(function(dayItinerary) {
+			dayItinerary.addEvents();
 		});
 	},
 	addTileEvents: function() {
@@ -137,12 +159,21 @@ Util.extend(Component, Itinerary, {
  */
 function DayItinerary(config) {
 	this.register();
+	this.day = config.day;
 	this.itineraryItems = config.itineraryItems || [];
 }
 
 Util.extend(Component, DayItinerary, {
 	render: function(h) {
 		h.push('<div id="', this.id, '" class="dayIti">');
+		if (this.day) {
+			h.push('<a id="', this.id, '_day" class="btn label label-default btn-sm">Day ', this.day, '</a>');
+		}
+		h.push('<div id="', this.id, '_items">');
+		this.renderItems(h);
+		h.push('</div></div>');
+	},
+	renderItems: function(h) {
 		if (this.itineraryItems.length) {
 			for (var idx = 0, len = this.itineraryItems.length; idx < len; idx++) {
 				this.itineraryItems[idx].render(h);
@@ -150,14 +181,47 @@ Util.extend(Component, DayItinerary, {
 		} else {
 			h.push('<p class="text-muted">No items yet!</p>');
 		}
-		h.push('</div>');
+	},
+	addEvents: function() {
+		this.itineraryItems.forEach(function(item) {
+			item.addEvents();
+		});
+		var me = this;
+		$('#' + this.id + '_day').click(function() {
+			me.dispatch('action', {
+				action: 'selected'
+			});
+		});
+	},
+	makeSelected: function() {
+		$('#' + this.id + '_day').switchClass('label-default', 'label-primary');
+	},
+	makeUnSelected: function() {
+		$('#' + this.id + '_day').switchClass('label-primary', 'label-default');
 	},
 	addItem: function(itineraryItem) {
 		if (this.itineraryItems.length == 0) {
-			$('#' + this.id).empty();
+			$('#' + this.id + '_items').empty();
 		}
 		this.itineraryItems.push(itineraryItem);
-		$('#' + this.id).append(itineraryItem.getHtml());
+		$('#' + this.id + '_items').append(itineraryItem.getHtml());
+		itineraryItem.addEvents();
+		itineraryItem.addEventListener('action', this, this.handleItineraryItem);
+	},
+	handleItineraryItem: function(evt) {
+		if (evt.data.action == 'delete') {
+			this.removeItem(evt.eventSource);
+		}
+	},
+	removeItem: function(item) {
+		var index = this.itineraryItems.indexOf(item);
+		item.removeEventListener('action', this);
+		this.itineraryItems.splice(index, 1);
+		//re render
+		var h = [];
+		this.renderItems(h);
+		$('#' + this.id + '_items').html(h.join(''));
+		this.addEvents();
 	},
 	getData: function() {
 		var dayItinerary = {
@@ -183,10 +247,18 @@ function ItineraryItem(config) {
 Util.extend(Component, ItineraryItem, {
 	render: function(h) {
 		h.push('<div id="', this.id, '" class="itiItem">');
-		h.push('<h6>', this.name, '</h6>');
-		h.push('<button type="button" class="btn btn-default btn-xs">',
+		h.push('<span>', this.name, '</span>');
+		h.push('<button id="', this.id, '_deleteBtn" type="button" class="btn btn-default btn-xs">',
 				'<span class="glyphicon glyphicon-remove"></span></button>');
 		h.push('</div>');
+	},
+	addEvents: function() {
+		var me = this;
+		$('#' + this.id + '_deleteBtn').click(function() {
+			me.dispatch('action', {
+				action: 'delete'
+			});
+		});
 	},
 	getData: function() {
 		var item = {

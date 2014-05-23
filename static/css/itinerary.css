@@ -10,9 +10,12 @@
 #itiContent {
 }
 
-.itiItem h6 {
+.itiItem {
+	margin-bottom: 7px;
 }
-
+.itiItem .btn {
+	margin-left: 5px;
+}
 .itiTile {
 	cursor: pointer;
 }
